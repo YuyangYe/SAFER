@@ -25,21 +25,18 @@ class SelfAttnBlock(nn.Module):
             nn.Linear(dim_feedforward, d_model)
         )
         self.dropout = nn.Dropout(dropout)
-        self.conv1 = nn.Conv1d(d_model, d_model, kernel_size=3, padding=1, bias=False)
-
+        self.conv1 = nn.Conv1d(d_model, d_model, kernel_size=3, padding=1, bias=False)  # unused in forward
 
     def forward(self, x, attn_mask):
-        # x shape: [B, T, d_model]
-        attn_out, _ = self.self_attn(x, x, x, attn_mask=attn_mask) # Self-attention
-        x = attn_out          # Residual
-        #if x.size(0) % 32 != 0 and x.device == torch.device('cuda:0'):
-        #    print("Check Attention:")
-        #    print(x[:2])
-        x = self.norm1(x)                       # LayerNorm
-
+        # Apply self-attention
+        attn_out, _ = self.self_attn(x, x, x, attn_mask=attn_mask)
+        x = attn_out  # residual connection
+        x = self.norm1(x)
+        
+        # Feed-forward block with residual
         ffn_out = self.ffn(x)
-        x = x + ffn_out           # Residual
-        x = self.norm2(x)                       # LayerNorm
+        x = x + ffn_out
+        x = self.norm2(x)
         return x
 
 class CrossAttnBlock(nn.Module):
@@ -61,14 +58,13 @@ class CrossAttnBlock(nn.Module):
         self.dropout = nn.Dropout(dropout)
     
     def forward(self, query, key, value, mask=None):
-        # query: [B, Tq, d_model]
-        # k, v:    [B, Tk, d_model]
+        # Standard cross-attention followed by residual & feedforward
         attn_out, _ = self.cross_attn(query, key, value, attn_mask=mask)
-        out = query + self.dropout(attn_out)  # residual
+        out = query + self.dropout(attn_out)
         out = self.norm1(out)
 
         ffn_out = self.ffn(out)
-        out = out + self.dropout(ffn_out)     # residual
+        out = out + self.dropout(ffn_out)
         out = self.norm2(out)
         return out
 
@@ -76,9 +72,11 @@ class CrossAttnBlock(nn.Module):
 class TransformerLayer(nn.Module):
     def __init__(self, d_model, num_heads, dim_feedforward=128, dropout=0.1):
         super().__init__()
+        # Separate self-attention for meds/vitals/notes
         self.meds_self_attn = SelfAttnBlock(d_model, num_heads, dim_feedforward, dropout)
         self.vitals_self_attn = SelfAttnBlock(d_model, num_heads, dim_feedforward, dropout)
         self.note_self_attn = SelfAttnBlock(d_model, num_heads, dim_feedforward, dropout)
+        # Cross-attention between notes and vitals
         self.cross_attn_n2v = CrossAttnBlock(d_model, num_heads, dim_feedforward, dropout)
         self.cross_attn_v2n = CrossAttnBlock(d_model, num_heads, dim_feedforward, dropout)
         self.Linear_n = nn.Linear(d_model * 2, d_model)
@@ -86,6 +84,7 @@ class TransformerLayer(nn.Module):
 
 
     def forward(self, meds, vitals, notes, attn_mask, mask=None):
+        # Apply self-attention to each modality
         # meds: [B, T, d_model]
         # vitals: [B, T, d_model]
         # notes: [B, T, d_model]
@@ -93,11 +92,15 @@ class TransformerLayer(nn.Module):
         vitals = self.vitals_self_attn(vitals, attn_mask)
         notes = self.note_self_attn(notes, attn_mask)
 
-        # Cross-attention
+        # Cross-attention fusion
         notes_v = self.cross_attn_n2v(notes, vitals, vitals, mask)
         vitals_n = self.cross_attn_v2n(vitals, notes, notes, mask)
+
+        # Concatenate attended + original features
         notes = torch.cat([notes_v, notes], dim=2)
         vitals = torch.cat([vitals_n, vitals], dim=2)
+
+        # Project back to original dimension
         notes = self.Linear_n(notes)
         vitals = self.Linear_v(vitals)
         return meds, vitals, notes
