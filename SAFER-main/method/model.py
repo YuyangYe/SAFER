@@ -278,7 +278,7 @@ class NextMedPredModel(nn.Module):
         #    print(out[:2])
         return fused_emb, out
 
-
+# Refine Module
 class RefinePrediction(nn.Module):
     def __init__(self, d_model, num_classes, dropout=0.2):
         super().__init__()
