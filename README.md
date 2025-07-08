@@ -1,7 +1,7 @@
 # SAFER
 Code repository for paper ['SAFER: A Calibrated Risk-Aware Multimodal Recommendation Model for Dynamic Treatment Regimes'](https://arxiv.org/pdf/2506.06649)
 
-![pipeline1](https://github.com/user-attachments/assets/686ffa02-608f-4fb2-a13e-69f4daf694ac){width=300px}
+![pipeline1](https://github.com/user-attachments/assets/686ffa02-608f-4fb2-a13e-69f4daf694ac){width=200px}
 
 
 # Dataset
