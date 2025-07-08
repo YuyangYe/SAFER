@@ -137,7 +137,7 @@ def main(rank, world_size):
     print('Evaluating mortality model...')
     evaluate_mortality(model, mortality_model, test_dataloader_m, rank, args)
 
-    # Conformal selection and FDR control
+    # Conformal selection and FDR control 
     print('Conformal selection and FDR evaluation...')
     emb_calib, calibration_scores, emb_test, test_scores = nonconformalized_score(
         model, refine_module, train_dataloader, val_dataloader, test_dataloader, max_diff, min_diff, args, rank
