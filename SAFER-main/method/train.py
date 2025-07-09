@@ -56,6 +56,7 @@ def evaluate_model(model, dataloader, rank, args):
     all_preds = torch.cat(all_preds, dim=0).view(len(all_preds), -1)  # Concatenate list of tensors into a single tensor
 
     #print(all_preds.shape, torch.tensor(all_labels).shape)
+    # Compute metrics
     accuracy = compute_accuracy(all_preds, all_labels)
     auc_macro, auc_micro = compute_auc(all_preds, all_labels, args.num_classes)
     hr_at_3 = HR_at_k(all_preds, all_labels, 3)
