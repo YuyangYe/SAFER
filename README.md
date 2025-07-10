@@ -14,17 +14,17 @@ Please follow [AI clinician](https://github.com/uribyul/py_ai_clinician) first, 
 
 ## Requirements
 
-Install dependencies via:
+Install dependencies via:␣␣
 pip install -r requirements.txt
 
 # File Structure
-├── model.py                 # Contains model architectures: NextMedPredModel, RefinePrediction
-├── train.py                 # Training and evaluation functions
-├── conformal_fdr.py         # Conformal prediction and FDR module
-├── dataloader.py            # Dataset loaders for EHR, reliable samples, uncertain samples, mortality
-├── mortality_rate.py        # Mortality prediction module
-├── main.py                  # Main entry with multi-GPU DDP training logic
-├── sepsis_time_series_data.csv  # Input data (required)
+├── model.py                 # Contains model architectures: NextMedPredModel, RefinePrediction␣␣  
+├── train.py                 # Training and evaluation functions␣␣  
+├── conformal_fdr.py         # Conformal prediction and FDR module␣␣  
+├── dataloader.py            # Dataset loaders for EHR, reliable samples, uncertain samples, mortality␣␣  
+├── mortality_rate.py        # Mortality prediction module␣␣  
+├── main.py                  # Main entry with multi-GPU DDP training logic␣␣  
+├── sepsis_time_series_data.csv  # Input data (required)␣␣  
 
 # Running the Code
 python main.py
