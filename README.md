@@ -15,8 +15,6 @@ Please follow [AI clinician](https://github.com/uribyul/py_ai_clinician) first, 
 ## Requirements
 
 Install dependencies via:
-
-```bash
 pip install -r requirements.txt
 
 # File Structure
